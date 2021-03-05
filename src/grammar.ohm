@@ -15,12 +15,11 @@ Lento {
   Arrangement = arrangementHeader CommandList?
   arrangementHeader = spaces ident "/" "\n"
   CommandList = Command ("\n"+ CommandList)?
-  Command = Loop | Play | Reverse
-  Loop = "loop" fragment
-  Play = "play" fragment (digit+ "times")?
-  Reverse = "reverse" fragment (digit+ "times")?
+  Command = Loop | Play
+  Loop = "loop" Fragment
+  Play = "play" Fragment (digit+ "times")?
 
-  fragment = ident track?
+  Fragment = "reversed"? ident track?
 
   ident = letter alnum*
   space := " " | "\t"

@@ -13,8 +13,7 @@ main/
 play beat
 play drums| xxx|
 play melody 3 times
-reverse melody
-loop beat
+loop reversed beat
   `);
   expect(tree).toEqual({
     settings: [
@@ -47,6 +46,7 @@ loop beat
             source: {
               type: "section",
               name: "beat",
+              reversed: false,
             },
           },
           {
@@ -56,6 +56,7 @@ loop beat
               type: "inline_track",
               instrument: "drums",
               track: " xxx",
+              reversed: false,
             },
           },
           {
@@ -64,14 +65,7 @@ loop beat
             source: {
               type: "section",
               name: "melody",
-            },
-          },
-          {
-            type: "reverse",
-            times: 1,
-            source: {
-              type: "section",
-              name: "melody",
+              reversed: false,
             },
           },
           {
@@ -79,6 +73,7 @@ loop beat
             source: {
               type: "section",
               name: "beat",
+              reversed: true,
             },
           },
         ],

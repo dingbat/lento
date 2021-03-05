@@ -67,30 +67,25 @@ const semantics = grammar.createSemantics().addOperation("ast", {
       source: fragment.ast(),
     };
   },
-  Reverse(_reverse, fragment, times, _times) {
-    return {
-      type: "reverse",
-      times: times.sourceString ? parseInt(times.sourceString) : 1,
-      source: fragment.ast(),
-    };
-  },
   Loop(_loop, fragment) {
     return {
       type: "loop",
       source: fragment.ast(),
     };
   },
-  fragment(ident, track) {
+  Fragment(reversed, ident, track) {
     if (track.sourceString) {
       return {
         type: "inline_track",
         instrument: ident.sourceString,
         track: track.ast()[0],
+        reversed: !!reversed.sourceString,
       };
     } else {
       return {
         type: "section",
         name: ident.sourceString,
+        reversed: !!reversed.sourceString,
       };
     }
   },
