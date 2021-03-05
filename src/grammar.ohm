@@ -1,0 +1,27 @@
+Lento {
+  Composition = "\n"* Statement*
+  Statement = (set | Section | Comment) ("\n"+ | end)
+
+  Comment = "#" any*
+  set = "set" spaces ("bpm" | "key") spaces "to" spaces alnum+
+
+  Section = Instrument | Arrangement
+
+  Instrument = instrumentHeader TrackList?
+  instrumentHeader = spaces ident "/" ident spaces "\n"
+  TrackList = track ("\n"+ TrackList)?
+  track = "|" (~"|" any)* "|"
+
+  Arrangement = arrangementHeader CommandList?
+  arrangementHeader = spaces ident "/" "\n"
+  CommandList = Command ("\n"+ CommandList)?
+  Command = Loop | Play | Reverse
+  Loop = "loop" fragment
+  Play = "play" fragment (digit+ "times")?
+  Reverse = "reverse" fragment (digit+ "times")?
+
+  fragment = ident track?
+
+  ident = letter alnum*
+  space := " " | "\t"
+}

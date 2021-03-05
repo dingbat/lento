@@ -1,0 +1,48 @@
+set bpm to 120
+set key to c
+
+beat/drums
+x   x   x   x   x
+a a a a a a a a a
+
+melody1/synth
+123__ 2_ 1222____
+
+melody2/synth
+123__ 2_ 1222____
+
+melody/
+play melody1 2 times then reverse melody1
+then
+play melody2 3 times
+
+loop beat
+after 2 bars
+loop melody
+then
+stop beat
+after 2 bars
+loop beat
+
+
+//////////////////////////
+
+
+beat/drums
+|xxxx|
+
+a/d
+
+mek/a
+|   |
+| |
+
+mel/
+play drums|x  x | 3 times
+play b
+
+mel/
+loop drums|x x|
+
+mel/op
+|   x |
