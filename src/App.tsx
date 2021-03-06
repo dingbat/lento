@@ -11,7 +11,7 @@ const Main = styled.main`
   height: 100%;
 `;
 const Editor = styled.textarea`
-  flex: 1;
+  flex: 2;
   flex-shrink: 0;
   padding: 1rem;
 `;
@@ -22,6 +22,8 @@ const Preview = styled.div`
 
 const DEFAULT_TEXT = raw("../default.txt");
 const DEFAULT_COMPOSITION = compile(DEFAULT_TEXT);
+
+// (() => {})();
 
 function App() {
   const [playing, setPlaying] = useState(false);

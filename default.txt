@@ -1,22 +1,35 @@
-set bpm to 160
-set key to major
+set bpm to 180
 
-beat/kit
-|hhhh|
-|k.k.|
-|..s.|..ss|
-
+#
+# all tracks in an instrument section play simultaneously
+# use . for rests
+#
 chords/synth
 |c...|g...|
 |e...|b...|
 |g...|d...|
 
+#
+# "kit" instrument currently only has:
+# - h (hihat)
+# - k (kick)
+# - s (snare)
+#
+beat/kit
+|hhhh|
+|k.k.|
+|..s.|..ss|
+
 melody/synth
 |..ab|..dd|eg..|geab|
 
+#
+# arrangement sections can trigger instrument sections or other arrangement sections
+# like instrument sections, all lines in an arrangement section play simultaneously
+#
 intro/
 loop chords
-loop kit|k...|
+loop kit|k.h.| # inline tracks are possible, too
 play reversed melody
 
 main_loop/
@@ -24,6 +37,9 @@ loop beat
 loop chords
 loop melody
 
+#
+# the "main" arrangement section automatically runs when you hit play
+# you can use "then" to sequence parts of the section
 main/
 play intro 2 times then play chords
 then
