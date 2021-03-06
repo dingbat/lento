@@ -3,7 +3,7 @@ import raw from "raw.macro";
 
 const contents = raw("../test.txt");
 
-test("parses", () => {
+test("parses  test.txt", () => {
   const tree = parse(contents);
   expect(tree).toEqual({
     settings: [
@@ -34,80 +34,68 @@ test("parses", () => {
       {
         type: "arrangement",
         name: "intro",
-        blocks: [
+        commands: [
           {
-            commands: [
-              {
-                type: "loop",
-                source: {
-                  type: "section",
-                  name: "chords",
-                  reversed: false,
-                },
-              },
-              {
-                type: "loop",
-                source: {
-                  type: "inline_track",
-                  instrument: "drums",
-                  track: "k...",
-                  reversed: false,
-                },
-              },
-              {
-                type: "play",
-                times: 1,
-                source: {
-                  type: "section",
-                  name: "melody",
-                  reversed: true,
-                },
-              },
-            ],
+            type: "loop",
+            source: {
+              type: "section",
+              name: "chords",
+              reversed: false,
+            },
+          },
+          {
+            type: "loop",
+            source: {
+              type: "inline_track",
+              instrument: "drums",
+              track: "k...",
+              reversed: false,
+            },
+          },
+          {
+            type: "play",
+            times: 1,
+            source: {
+              type: "section",
+              name: "melody",
+              reversed: true,
+            },
+            inlineThen: undefined,
+            blockThen: undefined,
           },
         ],
       },
       {
         type: "arrangement",
         name: "main",
-        blocks: [
+        commands: [
           {
-            commands: [
-              {
-                type: "play",
-                times: 1,
-                source: {
-                  type: "section",
-                  name: "intro",
-                  reversed: false,
-                },
+            type: "play",
+            times: 1,
+            source: {
+              type: "section",
+              name: "intro",
+              reversed: false,
+            },
+            inlineThen: {
+              type: "play",
+              times: 2,
+              source: {
+                type: "section",
+                name: "chords",
+                reversed: false,
               },
-            ],
-          },
-          {
-            commands: [
-              {
-                type: "play",
-                times: 2,
-                source: {
-                  type: "section",
-                  name: "chords",
-                  reversed: false,
-                },
+              inlineThen: undefined,
+              blockThen: undefined,
+            },
+            blockThen: {
+              type: "loop",
+              source: {
+                type: "section",
+                name: "beat",
+                reversed: true,
               },
-            ],
-          },
-          {
-            commands: [
-              {
-                type: "loop",
-                source: {
-                  type: "section",
-                  name: "beat",
-                  reversed: true,
-                },
-              },
-            ],
+            },
           },
         ],
       },

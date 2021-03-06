@@ -40,10 +40,8 @@ function playbacksFromSection(
   composition: Composition,
   section: ArrangementSection
 ) {
-  return section.blocks.flatMap((block) => {
-    return block.commands.flatMap((command) => {
-      return playbacksFromCommand(composition, command);
-    });
+  return section.commands.flatMap((command) => {
+    return playbacksFromCommand(composition, command);
   });
 }
 

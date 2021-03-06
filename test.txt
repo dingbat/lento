@@ -2,7 +2,7 @@ set bpm to 120
 set key to major
 
 beat/drums
-|hhhh|
+|hh|hh|
 |k...|
 |..s.|
 
@@ -17,8 +17,6 @@ play reversed melody
 
 # comment
 main/
-play intro
-then
-play chords 2 times
+play intro then play chords 2 times
 then
 loop reversed beat

@@ -44,7 +44,7 @@ function compile(code: string): Composition | Error {
   if (error) {
     return error;
   }
-  // check for cycles
+  // check for instantaneous cycles (cycles in a then are ok)
 
   return {
     error: false,

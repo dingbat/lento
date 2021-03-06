@@ -4,6 +4,8 @@ const contents = raw("./grammar.ohm");
 
 const grammar = ohm.grammar(contents);
 
+(function(){})();
+
 export interface Ast {
   settings: Setting[];
   sections: Section[];
@@ -34,10 +36,6 @@ interface InstrumentSection {
 export interface ArrangementSection {
   name: string;
   type: "arrangement";
-  blocks: Block[];
-}
-
-interface Block {
   commands: Command[];
 }
 
@@ -47,6 +45,8 @@ interface PlayCommand {
   type: "play";
   times: number;
   source: Source;
+  inlineThen?: Command;
+  blockThen?: Command;
 }
 
 interface LoopCommand {
@@ -93,7 +93,7 @@ const semantics = grammar.createSemantics().addOperation("ast", {
     return [track.ast(), ...tracks.ast()];
   },
   track(_bar, track, _bar2): Track {
-    return track.sourceString;
+    return track.sourceString.replaceAll("|", "");
   },
   instrumentHeader(_1, name, _slash, instrument, _2) {
     return { name: name.sourceString, instrument: instrument.sourceString };
@@ -112,34 +112,43 @@ const semantics = grammar.createSemantics().addOperation("ast", {
     }
   },
 
-  Arrangement(header, _1, blockList): ArrangementSection {
+  Arrangement(header, _1, commandList): ArrangementSection {
     const { name } = header.ast();
     return {
       type: "arrangement",
       name,
-      blocks: blockList.ast().flat(),
+      commands: commandList.ast().flat(),
     };
+  },
+  CommandList(command, _1, commands) {
+    return [command.ast(), ...commands.ast()];
   },
   arrangementHeader(_1, name, _slash2) {
     return { name: name.sourceString };
   },
-  BlockList(block, _1, _then, _2, block2) {
-    return [
-      block.ast(),
-      ...block2.ast(),
-    ];
-  },
-  Block(command, _1, commands) {
-    return {
-      commands: [command.ast(), ...commands.ast()],
-    };
-  },
-  Play(_play, fragment, times, _times) {
+  Play(_play, fragment, times, _times, inlineThen, _1, blockThen) {
     return {
       type: "play",
       times: times.sourceString ? parseInt(times.sourceString) : 1,
       source: fragment.ast(),
+      inlineThen: inlineThen.sourceString ? inlineThen.ast()[0] : undefined,
+      blockThen: blockThen.sourceString ? blockThen.ast()[0] : undefined,
     };
+  },
+  PlayNoBlockThen(_play, fragment, times, _times, inlineThen) {
+    return {
+      type: "play",
+      times: times.sourceString ? parseInt(times.sourceString) : 1,
+      source: fragment.ast(),
+      inlineThen: inlineThen.sourceString ? inlineThen.ast()[0] : undefined,
+      blockThen: undefined,
+    };
+  },
+  InlineThen(_then, command) {
+    return command.ast();
+  },
+  BlockThen(_then, _1, command) {
+    return command.ast();
   },
   Loop(_loop, fragment) {
     return {

@@ -4,15 +4,15 @@ set key to major
 beat/kit
 |hhhh|
 |k.k.|
-|..s...ss|
+|..s.|..ss|
 
 chords/synth
-|c...g...|
-|e...b...|
-|g...d...|
+|c...|g...|
+|e...|b...|
+|g...|d...|
 
 melody/synth
-|c---..ddeg---ge.|
+|..ab|..dd|eg..|geab|
 
 intro/
 loop chords
@@ -25,4 +25,6 @@ loop chords
 loop melody
 
 main/
-play main_loop
+play intro 2 times then play chords
+then
+loop main_loop

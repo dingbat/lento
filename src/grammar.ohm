@@ -9,15 +9,18 @@ Lento {
   Instrument = instrumentHeader (newline+ TrackList)?
   instrumentHeader = spaces ident "/" ident spaces
   TrackList = track (newline+ track)*
-  track = "|" (~"|" any)* "|"
+  track = "|" ((~("|" | newline) any)* "|")*
 
-  Arrangement = arrangementHeader (newline+ BlockList)?
-  BlockList = Block (newline+ "then" newline+ Block)*
+  Arrangement = arrangementHeader (newline+ CommandList)?
   arrangementHeader = spaces ident "/"
-  Block = Command (newline+ Command)*
+  CommandList = Command (newline+ Command)*
   Command = Loop | Play
   Loop = "loop" Fragment
-  Play = "play" Fragment (digit+ "times")?
+  Play = "play" Fragment (digit+ "times")? InlineThen? (newline+ BlockThen)?
+  InlineThen = "then" CommandNoBlockThen
+  CommandNoBlockThen = Loop | PlayNoBlockThen
+  PlayNoBlockThen = "play" Fragment (digit+ "times")? InlineThen?
+  BlockThen = "then" newline+ Command
 
   Fragment = "reversed"? ident track?
 
