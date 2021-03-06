@@ -21,3 +21,11 @@ html, body, #root {
   src: url("./source_code_pro/SourceCodePro-Bold.ttf");
   font-weight: bold;
 }
+
+.cm-wrap {
+  height: 100%;
+}
+.cm-scroller {
+  font-family: "scp", Menlo, Monaco, Consolas, "Courier New", monospace !important;
+  font-size: 0.8rem;
+}

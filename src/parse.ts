@@ -184,7 +184,6 @@ function parse(code: string): Ast | null {
   if (match.succeeded()) {
     return semantics(match).ast();
   } else {
-    console.log(grammar.trace(code).toString());
     return null;
   }
 }

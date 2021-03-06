@@ -1,26 +1,19 @@
-import { useState, ChangeEvent } from "react";
+import { useState } from "react";
 import styled from "styled-components/macro";
 import compile, { Composition, Error } from "./compile";
 import * as Tone from "tone";
 import raw from "raw.macro";
 import play from "./play";
+import useCodeMirror from "./useCodeMirror";
 
 const Main = styled.main`
   display: flex;
   width: 100%;
   height: 100%;
 `;
-const Editor = styled.textarea`
+const Editor = styled.div`
   flex: 2;
   flex-shrink: 0;
-  padding: 1rem;
-  font-family: "scp", Menlo, Monaco, Consolas, "Courier New";
-  font-size: 0.8rem;
-  resize: none;
-  background-color: rgb(230, 230, 230);
-  border: none;
-  outline: none;
-  box-shadow: none;
 `;
 const Preview = styled.div`
   flex: 1;
@@ -34,20 +27,23 @@ const DEFAULT_COMPOSITION = compile(DEFAULT_TEXT);
 
 function App() {
   const [playing, setPlaying] = useState(false);
-  const [code, setCode] = useState(DEFAULT_TEXT);
   const [started, setStarted] = useState(false);
   const [composition, setComposition] = useState<Composition | Error>(
     DEFAULT_COMPOSITION
   );
 
-  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (code: string) => {
     if (playing) {
       togglePlay();
     }
-    setCode(e.target.value);
-    const composition = compile(e.target.value + "\n");
+    const composition = compile(code + "\n");
     setComposition(composition);
   };
+  const editor = useCodeMirror<HTMLDivElement>({
+    doc: DEFAULT_TEXT,
+    callback: handleChange,
+  });
+
   const togglePlay = async () => {
     if (playing) {
       Tone.Transport.stop();
@@ -66,12 +62,7 @@ function App() {
   };
   return (
     <Main>
-      <Editor
-        value={code}
-        onChange={handleChange}
-        autoCorrect="none"
-        autoComplete="none"
-      />
+      <Editor ref={editor} />
       <Preview>
         <button onClick={togglePlay}>{playing ? "stop" : "play"}</button>
         {composition.error && composition.message}
