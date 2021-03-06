@@ -2,69 +2,6 @@ import * as Tone from "tone";
 import { Command, ArrangementSection } from "./parse";
 import { Composition } from "./compile";
 
-function playbacksFromCommand(
-  composition: Composition,
-  command: Command,
-  onComplete: () => void,
-): Playback[] {
-  const { source } = command;
-  const loop = command.type === "loop" ? true : command.times;
-  if (source.type === "inline_track") {
-    return [
-      new Playback(
-        source.track,
-        source.instrument,
-        source.reversed,
-        onComplete,
-        loop
-      ),
-    ];
-  } else {
-    const section = composition.sections[source.name];
-    if (section.type === "arrangement") {
-      return playbacksFromSection(composition, section, loop, onComplete);
-    } else {
-      return section.tracks.map((track) => {
-        return new Playback(
-          track,
-          section.instrument,
-          source.reversed,
-          onComplete,
-          loop
-        );
-      });
-    }
-  }
-}
-
-function playbacksFromSection(
-  composition: Composition,
-  section: ArrangementSection,
-  loop: boolean | number,
-  onComplete: () => void,
-) {
-  const commandFinished = () => {
-    if (loop === true) {
-      playbacks.forEach(pb => pb.reset());
-    } else if (loop === false) {
-      playbacks.forEach(pb => pb.stop());
-      onComplete();
-    } else {
-      loop -= 1;
-      if (loop === 0) {
-        playbacks.forEach(pb => pb.stop());
-        onComplete();
-      } else {
-        playbacks.forEach(pb => pb.reset());
-      }
-    }
-  };
-  const playbacks = section.commands.flatMap((command) => {
-    return playbacksFromCommand(composition, command, commandFinished);
-  });
-  return playbacks;
-}
-
 const SYNTH = new Tone.PolySynth().toDestination();
 const KIT = new Tone.Sampler({
   urls: {
@@ -138,16 +75,18 @@ class Playback {
 }
 
 class Player {
+  composition: Composition;
   playbacks: Playback[];
 
-  constructor() {
+  constructor(composition: Composition) {
+    this.composition = composition;
     this.playbacks = [];
   }
 
-  play(composition: Composition) {
-    Tone.Transport.bpm.value = composition.bpm;
+  play() {
+    Tone.Transport.bpm.value = this.composition.bpm;
 
-    this.playbacks = playbacksFromSection(composition, composition.main, 1, () => {
+    this.playSection(this.composition.main, 1, () => {
       console.log("done");
     });
 
@@ -161,11 +100,86 @@ class Player {
 
     Tone.Transport.start();
   }
+
+  playSection(
+    section: ArrangementSection,
+    loop: boolean | number,
+    onComplete: () => void
+  ): Playback[] {
+    const commandFinished = () => {
+      if (loop === true) {
+        playbacks.forEach((pb) => pb.reset());
+      } else if (loop === false) {
+        playbacks.forEach((pb) => pb.stop());
+        onComplete();
+      } else {
+        loop -= 1;
+        if (loop === 0) {
+          playbacks.forEach((pb) => pb.stop());
+          onComplete();
+        } else {
+          playbacks.forEach((pb) => pb.reset());
+        }
+      }
+    };
+    const playbacks = section.commands.flatMap((command) => {
+      return this.playCommand(command, commandFinished);
+    });
+    return playbacks;
+  }
+
+  playCommand(command: Command, onComplete: () => void): Playback[] {
+    const { source } = command;
+    const loop = command.type === "loop" ? true : command.times;
+    const handleComplete = () => {
+      if (command.type === "play") {
+        const completeBlock = () => {
+          onComplete();
+          if (command.blockThen) {
+            this.playCommand(command.blockThen, () => {});
+          }
+        };
+        if (command.inlineThen) {
+          this.playCommand(command.inlineThen, completeBlock);
+        } else {
+          completeBlock();
+        }
+      }
+    };
+    if (source.type === "inline_track") {
+      const playback = new Playback(
+        source.track,
+        source.instrument,
+        source.reversed,
+        handleComplete,
+        loop
+      );
+      this.playbacks.push(playback);
+      return [playback];
+    } else {
+      const section = this.composition.sections[source.name];
+      if (section.type === "arrangement") {
+        return this.playSection(section, loop, handleComplete);
+      } else {
+        const playbacks = section.tracks.map((track) => {
+          return new Playback(
+            track,
+            section.instrument,
+            source.reversed,
+            handleComplete,
+            loop
+          );
+        });
+        this.playbacks.push(...playbacks);
+        return playbacks;
+      }
+    }
+  }
 }
 
 function play(composition: Composition) {
-  const player = new Player();
-  player.play(composition);
+  const player = new Player(composition);
+  player.play();
 }
 
 export default play;
