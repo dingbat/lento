@@ -1,5 +1,4 @@
 set bpm to 120
-set key to major
 
 beat/kit
 |hhhh|
@@ -11,9 +10,9 @@ chords/synth
 |e...b...|
 |g...d...|
 
+# meh
 melody/synth
-# comment
-|c---..ddeg---ge.| #comment
+|c---..ddeg---ge.|
 
 intro/
 loop chords
@@ -25,10 +24,7 @@ loop beat
 loop chords
 loop melody
 
-# comment
 main/
-play intro
-#then
-#play chords 2 times
-#then
-#play main_loop
+play intro 2 times then play chords
+then
+play main_loop
