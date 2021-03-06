@@ -11,9 +11,7 @@ chords/synth
 
 #
 # "kit" instrument currently only has:
-# - h (hihat)
-# - k (kick)
-# - s (snare)
+# h (hihat), k (kick), and s (snare)
 #
 beat/kit
 |hhhh|
@@ -40,6 +38,7 @@ loop melody
 #
 # the "main" arrangement section automatically runs when you hit play
 # you can use "then" to sequence parts of the section
+#
 main/
 play intro 2 times then play chords
 then
