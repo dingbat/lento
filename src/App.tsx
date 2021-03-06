@@ -1,7 +1,9 @@
 import { useState, ChangeEvent } from "react";
-import { useThrottleCallback } from "@react-hook/throttle";
 import styled from "styled-components/macro";
-import parse, { Ast } from "./parse";
+import compile, { Composition, Error } from "./compile";
+import * as Tone from "tone";
+import raw from "raw.macro";
+import play from "./play";
 
 const Main = styled.main`
   display: flex;
@@ -15,59 +17,52 @@ const Editor = styled.textarea`
 `;
 const Preview = styled.div`
   flex: 1;
-  padding: 1rem;
+  padding: 2rem;
 `;
-const Section = styled.div``;
 
-const defaultText = `set bpm to 120
-beat/drums
-|xxxx|
-| x x|
-
-melody/synth
-
-main/
-play beat
-play drums| xxx|
-play melody 3 times
-loop reversed beat
-`;
+const DEFAULT_TEXT = raw("../default.txt");
+const DEFAULT_COMPOSITION = compile(DEFAULT_TEXT);
 
 function App() {
-  const [code, setCode] = useState(defaultText);
-  const [ast, setAst] = useState<Ast | null>(null);
-  const generateAst = useThrottleCallback((code) => {
-    setAst(parse(code));
-  });
+  const [playing, setPlaying] = useState(false);
+  const [code, setCode] = useState(DEFAULT_TEXT);
+  const [started, setStarted] = useState(false);
+  const [composition, setComposition] = useState<Composition | Error>(DEFAULT_COMPOSITION);
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    if (playing) {
+      togglePlay();
+    }
     setCode(e.target.value);
-    generateAst(e.target.value);
+    const composition = compile(e.target.value + "\n");
+    setComposition(composition);
+  };
+  const togglePlay = async () => {
+    if (playing) {
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      setPlaying(false);
+    } else {
+      if (!started) {
+        await Tone.start();
+      }
+      setStarted(true);
+      if (!composition.error) {
+        play(composition);
+        setPlaying(true);
+      }
+    }
   };
   return (
     <Main>
-      <Editor value={code} onChange={handleChange} />
+      <Editor
+        value={code}
+        onChange={handleChange}
+        autoCorrect="none"
+        autoComplete="none"
+      />
       <Preview>
-        {ast?.sections.map((section) => (
-          <Section key={section.name}>
-            <h3>{section.name}</h3>
-            {section.type === "arrangement" &&
-              section.commands.map((command) => (
-                <div>
-                  {command.type} {command.source.type}
-                </div>
-              ))}
-            {section.type === "instrument" && (
-              <>
-                <h5>{section.instrument}</h5>
-                <div>
-                  {section.tracks.map((track) => (
-                    <div>{track}</div>
-                  ))}
-                </div>
-              </>
-            )}
-          </Section>
-        ))}
+        <button onClick={togglePlay}>{playing ? "stop" : "play"}</button>
+        {composition.error && composition.message}
       </Preview>
     </Main>
   );

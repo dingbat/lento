@@ -9,13 +9,19 @@ export interface Ast {
   sections: Section[];
 }
 
-interface Setting {
-  type: "set";
-  param: "bpm" | "key";
-  value: string | number;
+type Setting = { type: "set" } & (BpmSet | KeySet);
+
+export interface BpmSet {
+  param: "bpm";
+  value: number;
 }
 
-type Section = InstrumentSection | ArrangementSection;
+interface KeySet {
+  param: "key";
+  value: string;
+}
+
+export type Section = InstrumentSection | ArrangementSection;
 type Track = string;
 
 interface InstrumentSection {
@@ -25,13 +31,17 @@ interface InstrumentSection {
   tracks: Track[];
 }
 
-interface ArrangementSection {
+export interface ArrangementSection {
   name: string;
   type: "arrangement";
+  blocks: Block[];
+}
+
+interface Block {
   commands: Command[];
 }
 
-type Command = PlayCommand | LoopCommand;
+export type Command = PlayCommand | LoopCommand;
 
 interface PlayCommand {
   type: "play";
@@ -44,7 +54,10 @@ interface LoopCommand {
   source: Source;
 }
 
-type Source = { reversed: boolean } & (InlineTrackSource | SectionSource);
+export type Source = { reversed: boolean } & (
+  | InlineTrackSource
+  | SectionSource
+);
 
 interface InlineTrackSource {
   type: "inline_track";
@@ -67,57 +80,59 @@ const semantics = grammar.createSemantics().addOperation("ast", {
       ),
     };
   },
-  Instrument(header, trackList): InstrumentSection {
+  Instrument(header, _space, trackList): InstrumentSection {
     const { instrument, name } = header.ast();
     return {
       type: "instrument",
       instrument,
       name,
-      tracks: trackList.ast().flat(Infinity),
+      tracks: trackList.ast().flat(),
     };
   },
-  TrackList(track, _1, trackList) {
-    return [
-      track.ast(),
-      ...(trackList.sourceString.length ? trackList.ast() : []),
-    ];
+  TrackList(track, _1, tracks) {
+    return [track.ast(), ...tracks.ast()];
   },
   track(_bar, track, _bar2): Track {
     return track.sourceString;
   },
-  instrumentHeader(_1, name, _slash, instrument, _2, _3) {
+  instrumentHeader(_1, name, _slash, instrument, _2) {
     return { name: name.sourceString, instrument: instrument.sourceString };
   },
   Statement(setOrSection, _) {
     return setOrSection.ast();
   },
   set(_set, _1, param, _2, _to, _3, value): Setting {
-    if (param.sourceString !== "bpm" && param.sourceString !== "key") {
-      throw new Error("bpm or key expected");
+    switch (param.sourceString) {
+      case "bpm":
+        return { type: "set", param: "bpm", value: Number(value.sourceString) };
+      case "key":
+        return { type: "set", param: "key", value: value.sourceString };
+      default:
+        throw new Error("bpm or key expected");
     }
-    return {
-      type: "set",
-      param: param.sourceString,
-      value: value.sourceString,
-    };
   },
 
-  Arrangement(header, commandList): ArrangementSection {
+  Arrangement(header, _1, blockList): ArrangementSection {
     const { name } = header.ast();
     return {
       type: "arrangement",
       name,
-      commands: commandList.ast().flat(Infinity),
+      blocks: blockList.ast().flat(),
     };
   },
-  arrangementHeader(_1, name, _slash, _2) {
+  arrangementHeader(_1, name, _slash2) {
     return { name: name.sourceString };
   },
-  CommandList(command, _1, commandList) {
+  BlockList(block, _1, _then, _2, block2) {
     return [
-      command.ast(),
-      ...(commandList.sourceString ? commandList.ast() : []),
+      block.ast(),
+      ...block2.ast(),
     ];
+  },
+  Block(command, _1, commands) {
+    return {
+      commands: [command.ast(), ...commands.ast()],
+    };
   },
   Play(_play, fragment, times, _times) {
     return {
@@ -150,17 +165,17 @@ const semantics = grammar.createSemantics().addOperation("ast", {
   },
 });
 
-function parse(composition: string): Ast | null {
+function parse(code: string): Ast | null {
   let match;
   try {
-    match = grammar.match(composition);
+    match = grammar.match(code);
   } catch (e) {
     return null;
   }
   if (match.succeeded()) {
     return semantics(match).ast();
   } else {
-    // console.log(grammar.trace(composition).toString());
+    console.log(grammar.trace(code).toString());
     return null;
   }
 }

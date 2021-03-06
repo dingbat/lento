@@ -1,26 +1,28 @@
 Lento {
-  Composition = "\n"* Statement*
-  Statement = (set | Section | Comment) ("\n"+ | end)
+  Composition = newline* Statement*
+  Statement = (set | Section) (newline+ | end)
 
-  Comment = "#" any*
   set = "set" spaces ("bpm" | "key") spaces "to" spaces alnum+
 
   Section = Instrument | Arrangement
 
-  Instrument = instrumentHeader TrackList?
-  instrumentHeader = spaces ident "/" ident spaces "\n"
-  TrackList = track ("\n"+ TrackList)?
+  Instrument = instrumentHeader (newline+ TrackList)?
+  instrumentHeader = spaces ident "/" ident spaces
+  TrackList = track (newline+ track)*
   track = "|" (~"|" any)* "|"
 
-  Arrangement = arrangementHeader CommandList?
-  arrangementHeader = spaces ident "/" "\n"
-  CommandList = Command ("\n"+ CommandList)?
+  Arrangement = arrangementHeader (newline+ BlockList)?
+  BlockList = Block (newline+ "then" newline+ Block)*
+  arrangementHeader = spaces ident "/"
+  Block = Command (newline+ Command)*
   Command = Loop | Play
   Loop = "loop" Fragment
   Play = "play" Fragment (digit+ "times")?
 
   Fragment = "reversed"? ident track?
 
-  ident = letter alnum*
+  ident = letter (alnum | "_")*
   space := " " | "\t"
+  newline = comment? "\n"
+  comment = spaces "#" (~"\n" any)*
 }

@@ -1,15 +1,10 @@
 set bpm to 120
 set key to major
 
-beat/kit
+beat/drums
 |hhhh|
 |k...|
 |..s.|
-
-chords/synth
-|c...g...|
-|e...b...|
-|g...d...|
 
 melody/synth
 # comment
@@ -17,18 +12,13 @@ melody/synth
 
 intro/
 loop chords
-loop kit|k...|
+loop drums|k...|
 play reversed melody
-
-main_loop/
-loop beat
-loop chords
-loop melody
 
 # comment
 main/
 play intro
-#then
-#play chords 2 times
-#then
-#play main_loop
+then
+play chords 2 times
+then
+loop reversed beat
