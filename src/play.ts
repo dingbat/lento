@@ -4,7 +4,8 @@ import { Composition } from "./compile";
 
 function playbacksFromCommand(
   composition: Composition,
-  command: Command
+  command: Command,
+  onComplete: () => void,
 ): Playback[] {
   const { source } = command;
   const loop = command.type === "loop" ? true : command.times;
@@ -14,21 +15,21 @@ function playbacksFromCommand(
         source.track,
         source.instrument,
         source.reversed,
-        () => {},
+        onComplete,
         loop
       ),
     ];
   } else {
     const section = composition.sections[source.name];
     if (section.type === "arrangement") {
-      return playbacksFromSection(composition, section);
+      return playbacksFromSection(composition, section, loop, onComplete);
     } else {
       return section.tracks.map((track) => {
         return new Playback(
           track,
           section.instrument,
           source.reversed,
-          () => {},
+          onComplete,
           loop
         );
       });
@@ -38,11 +39,30 @@ function playbacksFromCommand(
 
 function playbacksFromSection(
   composition: Composition,
-  section: ArrangementSection
+  section: ArrangementSection,
+  loop: boolean | number,
+  onComplete: () => void,
 ) {
-  return section.commands.flatMap((command) => {
-    return playbacksFromCommand(composition, command);
+  const commandFinished = () => {
+    if (loop === true) {
+      playbacks.forEach(pb => pb.reset());
+    } else if (loop === false) {
+      playbacks.forEach(pb => pb.stop());
+      onComplete();
+    } else {
+      loop -= 1;
+      if (loop === 0) {
+        playbacks.forEach(pb => pb.stop());
+        onComplete();
+      } else {
+        playbacks.forEach(pb => pb.reset());
+      }
+    }
+  };
+  const playbacks = section.commands.flatMap((command) => {
+    return playbacksFromCommand(composition, command, commandFinished);
   });
+  return playbacks;
 }
 
 const SYNTH = new Tone.PolySynth().toDestination();
@@ -62,6 +82,7 @@ class Playback {
   completionCallback: () => void;
   note: number;
   loop: number | boolean;
+  currentLoop: number | boolean;
   complete: boolean;
 
   constructor(
@@ -75,9 +96,16 @@ class Playback {
     this.instrument = instrument;
     this.reversed = reversed;
     this.completionCallback = completionCallback;
-    this.note = 0;
     this.loop = loop;
     this.complete = false;
+    this.note = 0;
+    this.currentLoop = this.loop;
+  }
+
+  reset() {
+    this.complete = false;
+    this.note = 0;
+    this.currentLoop = this.loop;
   }
 
   play(time: number) {
@@ -94,14 +122,18 @@ class Playback {
     }
     this.note = (this.note + 1) % this.track.length;
     if (this.note === 0) {
-      if (typeof this.loop === "number") {
-        this.loop -= 1;
+      if (typeof this.currentLoop === "number") {
+        this.currentLoop -= 1;
       }
-      if (this.loop === 0 || this.loop === false) {
-        this.completionCallback();
+      if (this.currentLoop === 0 || this.currentLoop === false) {
         this.complete = true;
+        this.completionCallback();
       }
     }
+  }
+
+  stop() {
+    this.complete = true;
   }
 }
 
@@ -115,7 +147,9 @@ class Player {
   play(composition: Composition) {
     Tone.Transport.bpm.value = composition.bpm;
 
-    this.playbacks = playbacksFromSection(composition, composition.main);
+    this.playbacks = playbacksFromSection(composition, composition.main, 1, () => {
+      console.log("done");
+    });
 
     Tone.Transport.scheduleRepeat((time) => {
       this.playbacks.forEach((playback) => {
