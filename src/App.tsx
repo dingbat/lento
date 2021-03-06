@@ -14,6 +14,13 @@ const Editor = styled.textarea`
   flex: 2;
   flex-shrink: 0;
   padding: 1rem;
+  font-family: "scp", Menlo, Monaco, Consolas, "Courier New";
+  font-size: 0.8rem;
+  resize: none;
+  background-color: rgb(230, 230, 230);
+  border: none;
+  outline: none;
+  box-shadow: none;
 `;
 const Preview = styled.div`
   flex: 1;
@@ -29,7 +36,10 @@ function App() {
   const [playing, setPlaying] = useState(false);
   const [code, setCode] = useState(DEFAULT_TEXT);
   const [started, setStarted] = useState(false);
-  const [composition, setComposition] = useState<Composition | Error>(DEFAULT_COMPOSITION);
+  const [composition, setComposition] = useState<Composition | Error>(
+    DEFAULT_COMPOSITION
+  );
+
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if (playing) {
       togglePlay();

@@ -11,7 +11,13 @@ html, body, #root {
   height: 100%;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@font-face {
+  font-family: scp;
+  src: url("./source_code_pro/SourceCodePro-Regular.ttf");
+}
+
+@font-face {
+  font-family: scp;
+  src: url("./source_code_pro/SourceCodePro-Bold.ttf");
+  font-weight: bold;
 }
