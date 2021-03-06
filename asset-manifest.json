@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/lento/static/css/main.75ab2c15.chunk.css",
-    "main.js": "/lento/static/js/main.b4b1e75a.chunk.js",
-    "main.js.map": "/lento/static/js/main.b4b1e75a.chunk.js.map",
+    "main.js": "/lento/static/js/main.a9a8a58f.chunk.js",
+    "main.js.map": "/lento/static/js/main.a9a8a58f.chunk.js.map",
     "runtime-main.js": "/lento/static/js/runtime-main.0fe048c2.js",
     "runtime-main.js.map": "/lento/static/js/runtime-main.0fe048c2.js.map",
     "static/js/2.5d8fadfc.chunk.js": "/lento/static/js/2.5d8fadfc.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.0fe048c2.js",
     "static/js/2.5d8fadfc.chunk.js",
     "static/css/main.75ab2c15.chunk.css",
-    "static/js/main.b4b1e75a.chunk.js"
+    "static/js/main.a9a8a58f.chunk.js"
   ]
 }
