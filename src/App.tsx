@@ -20,8 +20,20 @@ const Preview = styled.div`
   padding: 2rem;
   background-color: rgb(30,30,30);
 `;
+const DEFAULT_TEXT = false ? raw("../default.txt") : `
+set bpm to 200
 
-const DEFAULT_TEXT = raw("../default.txt");
+track/synth
+|cdef|
+
+i/
+play track
+play kick|k...|
+
+main/
+loop kick|h|
+play i
+`;
 const DEFAULT_COMPOSITION = compile(DEFAULT_TEXT);
 
 // (() => {})();
@@ -56,7 +68,7 @@ function App() {
       }
       setStarted(true);
       if (!composition.error) {
-        play(composition);
+        play(composition, () => setPlaying(false));
         setPlaying(true);
       }
     }

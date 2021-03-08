@@ -15,7 +15,6 @@ const KIT = new Tone.Sampler({
 class Playback {
   track: string[];
   instrument: string;
-  reversed: boolean;
   completionCallback: () => void;
   note: number;
   loop: number | boolean;
@@ -30,8 +29,10 @@ class Playback {
     loop: number | boolean
   ) {
     this.track = track.split("");
+    if (reversed) {
+      this.track = this.track.reverse();
+    }
     this.instrument = instrument;
-    this.reversed = reversed;
     this.completionCallback = completionCallback;
     this.loop = loop;
     this.complete = false;
@@ -46,8 +47,7 @@ class Playback {
   }
 
   play(time: number) {
-    const track = this.reversed ? this.track.reverse() : this.track;
-    const beat = track[this.note];
+    const beat = this.track[this.note];
     if (beat !== "-" && beat !== ".") {
       const length = "4n";
       if (this.instrument === "synth") {
@@ -62,9 +62,8 @@ class Playback {
       if (typeof this.currentLoop === "number") {
         this.currentLoop -= 1;
       }
-      if (this.currentLoop === 0 || this.currentLoop === false) {
+      if (this.currentLoop <= 0 || this.currentLoop === false) {
         this.complete = true;
-        this.completionCallback();
       }
     }
   }
@@ -83,19 +82,22 @@ class Player {
     this.playbacks = [];
   }
 
-  play() {
+  play(onComplete: () => void) {
     Tone.Transport.bpm.value = this.composition.bpm;
 
-    this.playSection(this.composition.main, 1, () => {
-      console.log("done");
-    });
+    this.playSection(this.composition.main, 1, false, onComplete, true);
 
     Tone.Transport.scheduleRepeat((time) => {
+      let callbacks: (() => void)[] = [];
       this.playbacks.forEach((playback) => {
         if (!playback.complete) {
           playback.play(time + 0.1);
+          if (playback.complete) {
+            callbacks.push(playback.completionCallback);
+          }
         }
       });
+      callbacks.forEach((c) => c());
     }, "4n");
 
     Tone.Transport.start();
@@ -104,17 +106,19 @@ class Player {
   playSection(
     section: ArrangementSection,
     loop: boolean | number,
-    onComplete: () => void
+    reversed: boolean,
+    onComplete: () => void,
+    allowInfiniteLoops = false
   ): Playback[] {
     const commandFinished = () => {
-      if (loop === true) {
-        playbacks.forEach((pb) => pb.reset());
-      } else if (loop === false) {
-        playbacks.forEach((pb) => pb.stop());
-        onComplete();
-      } else {
-        loop -= 1;
-        if (loop === 0) {
+      const allPlaybackComplete = playbacks.every(p => (!allowInfiniteLoops && p.loop === true) || p.complete);
+      if (allPlaybackComplete) {
+        if (typeof(loop) === "number") {
+          loop -= 1;
+        }
+        if (loop === true) {
+          playbacks.forEach((pb) => pb.reset());
+        } else if (loop === false || loop <= 0) {
           playbacks.forEach((pb) => pb.stop());
           onComplete();
         } else {
@@ -123,24 +127,29 @@ class Player {
       }
     };
     const playbacks = section.commands.flatMap((command) => {
-      return this.playCommand(command, commandFinished);
+      return this.playCommand(command, reversed, commandFinished);
     });
     return playbacks;
   }
 
-  playCommand(command: Command, onComplete: () => void): Playback[] {
+  playCommand(
+    command: Command,
+    reversed: boolean,
+    onComplete: () => void
+  ): Playback[] {
     const { source } = command;
+    reversed = reversed ? !source.reversed : source.reversed;
     const loop = command.type === "loop" ? true : command.times;
     const handleComplete = () => {
       if (command.type === "play") {
         const completeBlock = () => {
           onComplete();
           if (command.blockThen) {
-            this.playCommand(command.blockThen, () => {});
+            this.playCommand(command.blockThen, reversed, () => {});
           }
         };
         if (command.inlineThen) {
-          this.playCommand(command.inlineThen, completeBlock);
+          this.playCommand(command.inlineThen, reversed, completeBlock);
         } else {
           completeBlock();
         }
@@ -150,7 +159,7 @@ class Player {
       const playback = new Playback(
         source.track,
         source.instrument,
-        source.reversed,
+        reversed,
         handleComplete,
         loop
       );
@@ -159,13 +168,13 @@ class Player {
     } else {
       const section = this.composition.sections[source.name];
       if (section.type === "arrangement") {
-        return this.playSection(section, loop, handleComplete);
+        return this.playSection(section, loop, reversed, handleComplete);
       } else {
         const playbacks = section.tracks.map((track) => {
           return new Playback(
             track,
             section.instrument,
-            source.reversed,
+            reversed,
             handleComplete,
             loop
           );
@@ -177,9 +186,9 @@ class Player {
   }
 }
 
-function play(composition: Composition) {
+function play(composition: Composition, onComplete: () => void) {
   const player = new Player(composition);
-  player.play();
+  player.play(onComplete);
 }
 
 export default play;
