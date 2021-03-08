@@ -165,7 +165,7 @@ class Player {
             this.playCommands(
               command.blockThen,
               false,
-              reversed,
+              false,
               onComplete,
               command.inMain
             );
@@ -174,7 +174,7 @@ class Player {
           }
         };
         if (command.inlineThen) {
-          this.playCommand(command.inlineThen, reversed, completeBlock);
+          this.playCommand(command.inlineThen, false, completeBlock);
         } else {
           completeBlock();
         }

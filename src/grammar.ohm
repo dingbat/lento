@@ -16,14 +16,15 @@ Lento {
   CommandList = Command (newline+ Command)*
   Command = Loop | Play
   Loop = "loop" Fragment
-  Play = "play" Fragment (digit+ "times")? InlineThen? (newline+ BlockThen)?
+  Play = "play" Fragment times? InlineThen? (newline+ BlockThen)?
   InlineThen = "then" CommandNoBlockThen
   CommandNoBlockThen = Loop | PlayNoBlockThen
-  PlayNoBlockThen = "play" Fragment (digit+ "times")? InlineThen?
+  PlayNoBlockThen = "play" Fragment times? InlineThen?
   BlockThen = "then" newline+ CommandList
 
   Fragment = "reversed"? ident track?
 
+  times = (digit+ space "times")
   ident = (~ reserved) letter (alnum | "_")*
   space := " " | "\t"
   newline = comment? "\n"

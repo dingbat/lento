@@ -4,7 +4,7 @@ const contents = raw("./grammar.ohm");
 
 const grammar = ohm.grammar(contents);
 
-// (function(){})();
+(function(){})();
 
 export interface Ast {
   settings: Setting[];
@@ -127,7 +127,7 @@ const semantics = grammar.createSemantics().addOperation("ast", {
   arrangementHeader(_1, name, _slash2) {
     return { name: name.sourceString };
   },
-  Play(_play, fragment, times, _times, inlineThen, _1, blockThen) {
+  Play(_play, fragment, times, inlineThen, _1, blockThen) {
     return {
       type: "play",
       times: times.sourceString ? parseInt(times.sourceString) : 1,
@@ -136,7 +136,7 @@ const semantics = grammar.createSemantics().addOperation("ast", {
       blockThen: blockThen.sourceString ? blockThen.ast()[0] : undefined,
     };
   },
-  PlayNoBlockThen(_play, fragment, times, _times, inlineThen) {
+  PlayNoBlockThen(_play, fragment, times, inlineThen) {
     return {
       type: "play",
       times: times.sourceString ? parseInt(times.sourceString) : 1,

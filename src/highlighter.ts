@@ -31,7 +31,7 @@ const language = StreamLanguage.define({
       tag = "character";
     } else if (stream.match(/^#.*/)) {
       tag = "comment";
-    } else if (previousString.match(/\|$/) && stream.match(/^[^|#]+/)) {
+    } else if (previousString.match(/\|$/) && stream.match(/^[^|#]+\|/)) {
       // track notes
       tag = "labelName";
       stream.backUp(1);
