@@ -37,6 +37,7 @@ export interface ArrangementSection {
   name: string;
   type: "arrangement";
   commands: Command[];
+  checked?: boolean;
 }
 
 export type Command = PlayCommand | LoopCommand;

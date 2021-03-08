@@ -23,10 +23,29 @@ const Preview = styled.div`
 const SyntaxError = styled.div`
   color: red;
 `;
-const DEFAULT_TEXT = `` || raw("../default.txt");
+const DEFAULT_TEXT = `
+set bpm to 180
+
+beat/kit
+|hhhh|
+|k.k.|
+|..s.|..ss|
+
+melody/synth
+|..ab|..dd|eg..|geab|
+
+a/
+play melody then play b
+
+b/
+play beat then play a
+
+main/
+play beat
+` && raw("../default.txt");
 const DEFAULT_COMPOSITION = compile(DEFAULT_TEXT);
 
-// (() => {})();
+(() => {})();
 
 function App() {
   const [playing, setPlaying] = useState(false);

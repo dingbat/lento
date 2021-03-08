@@ -128,7 +128,7 @@ class Player {
   ): Playback[] {
     const commandFinished = () => {
       const allPlaybackComplete = playbacks.every(
-        (p) => (!allowInfiniteLoops && p.loop === true) || p.complete
+        (p) => (p.loop === true) || p.complete
       );
       if (allPlaybackComplete) {
         if (typeof loop === "number") {
@@ -195,12 +195,18 @@ class Player {
       if (section.type === "arrangement") {
         return this.playSection(section, loop, reversed, handleComplete);
       } else {
+        const individualTrackComplete = () => {
+          const allPlaybackComplete = playbacks.every((p) => p.complete);
+          if (allPlaybackComplete) {
+            handleComplete();
+          }
+        };
         const playbacks = section.tracks.map((track) => {
           return new Playback(
             track,
             section.instrument,
             reversed,
-            handleComplete,
+            individualTrackComplete,
             loop
           );
         });

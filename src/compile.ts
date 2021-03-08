@@ -24,6 +24,18 @@ function checkInstrument(instrument: string): Error | null {
   };
 }
 
+function checkSection(
+  sections: SectionMap,
+  section: ArrangementSection,
+  initialError?: Error | null
+): Error | null {
+  if (section.checked) {
+    return initialError || null;
+  }
+  section.checked = true;
+  return checkDefinedSections(sections, section.commands, initialError);
+}
+
 function checkDefinedSections(
   sections: SectionMap,
   commands: Command[],
@@ -41,7 +53,7 @@ function checkDefinedSections(
         };
       } else {
         if (section.type === "arrangement") {
-          error = checkDefinedSections(sections, section.commands, error);
+          error = checkSection(sections, section, error);
         } else {
           error = error || checkInstrument(section.instrument);
         }
@@ -106,7 +118,7 @@ function compile(code: string): Composition | Error {
   }
 
   setMain(main.commands);
-  const error2 = checkDefinedSections(sections, main.commands);
+  const error2 = checkSection(sections, main);
   if (error2) {
     return error2;
   }
