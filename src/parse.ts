@@ -4,7 +4,7 @@ const contents = raw("./grammar.ohm");
 
 const grammar = ohm.grammar(contents);
 
-(function(){})();
+// (function(){})();
 
 export interface Ast {
   settings: Setting[];

@@ -5,6 +5,7 @@
   "dependencies": {
     "@codemirror/basic-setup": "^0.18.0",
     "@codemirror/state": "^0.18.0",
+    "@codemirror/stream-parser": "^0.18.0",
     "@react-hook/throttle": "^2.2.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -26,7 +27,7 @@
   "scripts": {
     "predeploy": "yarn build",
     "deploy": "gh-pages -d build",
-    "start": "react-scripts start",
+    "start": "FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

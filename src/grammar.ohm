@@ -2,7 +2,7 @@ Lento {
   Composition = newline* Statement*
   Statement = (set | Section) (newline+ | end)
 
-  set = "set" spaces ("bpm" | "key") spaces "to" spaces alnum+
+  set = "set" spaces settings spaces "to" spaces alnum+
 
   Section = Instrument | Arrangement
 
@@ -24,8 +24,10 @@ Lento {
 
   Fragment = "reversed"? ident track?
 
-  ident = letter (alnum | "_")*
+  ident = (~ reserved) letter (alnum | "_")*
   space := " " | "\t"
   newline = comment? "\n"
   comment = spaces "#" (~"\n" any)*
+  settings = "bpm" | "key"
+  reserved = "loop" | "play" | "then" | "reversed" | "set" | "to" | "times" | settings
 }

@@ -2,6 +2,8 @@ import { basicSetup, EditorState, EditorView } from "@codemirror/basic-setup";
 import { Transaction, Text } from "@codemirror/state";
 import { MutableRefObject, useEffect, useReducer, useRef } from "react";
 
+import highlightParser from "./highlightParser";
+
 interface Options {
   doc?: string | Text;
   callback?: (newDoc: string) => void;
@@ -25,7 +27,7 @@ export default function useCodeMirror<T extends Element>(
     () =>
       EditorState.create({
         doc: options.doc,
-        extensions: basicSetup
+        extensions: [basicSetup, highlightParser],
       })
   );
 
