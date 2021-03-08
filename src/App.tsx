@@ -18,6 +18,7 @@ const Editor = styled.div`
 const Preview = styled.div`
   flex: 1;
   padding: 2rem;
+  background-color: rgb(30,30,30);
 `;
 
 const DEFAULT_TEXT = raw("../default.txt");

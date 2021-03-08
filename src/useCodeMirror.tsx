@@ -3,8 +3,9 @@ import { Transaction, Text } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 import { commentKeymap } from "@codemirror/comment";
 import { MutableRefObject, useEffect, useReducer, useRef } from "react";
+import { oneDark } from "@codemirror/theme-one-dark";
 
-import highlightParser from "./highlightParser";
+import highlighter from "./highlighter";
 
 interface Options {
   doc?: string | Text;
@@ -31,7 +32,8 @@ export default function useCodeMirror<T extends Element>(
         doc: options.doc,
         extensions: [
           basicSetup,
-          highlightParser,
+          highlighter,
+          oneDark,
           keymap.of(commentKeymap),
         ],
       })

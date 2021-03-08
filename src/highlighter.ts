@@ -18,18 +18,17 @@ const language = StreamLanguage.define({
       tag = "strong";
     } else if (boundary && stream.match(/^\d+ times/)) {
       stream.backUp(1);
-      tag = "regexp";
+      tag = "bool";
     } else if (boundary && stream.match(/reversed( |%)/)) {
       stream.backUp(1);
-      tag = "regexp";
+      tag = "bool";
     } else if (previousString.match(/ *set +$/)) {
       // set statement parameter
       stream.match(/^[a-z]+/);
-      tag = "literal";
     } else if (previousString.match(/ +to +$/) && stream.match(/^[^# ]*/)) {
       // set statement value
       stream.backUp(1);
-      tag = "literal";
+      tag = "character";
     } else if (stream.match(/^#.*/)) {
       tag = "comment";
     } else if (previousString.match(/\|$/) && stream.match(/^[^|#]+/)) {
