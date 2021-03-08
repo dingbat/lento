@@ -1,4 +1,4 @@
-import parse, { Section, ArrangementSection, BpmSet } from "./parse";
+import parse, { Section, Command, ArrangementSection, BpmSet } from "./parse";
 
 type SectionMap = { [key: string]: Section };
 
@@ -14,10 +14,57 @@ export interface Error {
   message: string;
 }
 
+function checkDefinedSections(
+  sections: SectionMap,
+  commands: Command[],
+  initialError?: Error | null
+): Error | null {
+  return commands.reduce<Error | null>((error, command) => {
+    if (command.source.type === "inline_track") {
+      return error;
+    } else {
+      const section = sections[command.source.name];
+      if (!section) {
+        return {
+          error: true,
+          message: `section "${command.source.name}" not defined`,
+        };
+      } else {
+        if (section.type === "arrangement") {
+          error = checkDefinedSections(sections, section.commands, error);
+        }
+        if (command.type === "play") {
+          if (command.inlineThen) {
+            error = checkDefinedSections(sections, [command.inlineThen], error);
+          }
+          if (command.blockThen) {
+            error = checkDefinedSections(sections, command.blockThen, error);
+          }
+        }
+        return error;
+      }
+    }
+  }, initialError || null);
+}
+
+function setMain(commands: Command[]) {
+  commands.forEach((command) => {
+    if (command.type === "play") {
+      command.inMain = true;
+      if (command.inlineThen) {
+        setMain([command.inlineThen]);
+      }
+      if (command.blockThen) {
+        setMain(command.blockThen);
+      }
+    }
+  });
+}
+
 function compile(code: string): Composition | Error {
-  const ast = parse(code);
+  const { ast, error: syntaxError } = parse(code);
   if (!ast) {
-    return { error: true, message: "syntax error" };
+    return { error: true, message: "syntax error: " + syntaxError };
   }
   const main = ast.sections.find((s) => s.name === "main");
   if (!main) {
@@ -41,8 +88,15 @@ function compile(code: string): Composition | Error {
     sections[section.name] = section;
     return error;
   }, null);
+
   if (error) {
     return error;
+  }
+
+  setMain(main.commands);
+  const error2 = checkDefinedSections(sections, main.commands);
+  if (error2) {
+    return error2;
   }
   // check for instantaneous cycles (cycles in a then are ok)
 

@@ -4,8 +4,8 @@ import raw from "raw.macro";
 const contents = raw("../test.txt");
 
 test("parses  test.txt", () => {
-  const tree = parse(contents);
-  expect(tree).toEqual({
+  const { ast } = parse(contents);
+  expect(ast).toEqual({
     settings: [
       {
         type: "set",
@@ -22,7 +22,7 @@ test("parses  test.txt", () => {
       {
         name: "beat",
         type: "instrument",
-        instrument: "drums",
+        instrument: "kit",
         tracks: ["hhhh", "k...", "..s."],
       },
       {
@@ -47,7 +47,7 @@ test("parses  test.txt", () => {
             type: "loop",
             source: {
               type: "inline_track",
-              instrument: "drums",
+              instrument: "kit",
               track: "k...",
               reversed: false,
             },
@@ -88,14 +88,25 @@ test("parses  test.txt", () => {
               inlineThen: undefined,
               blockThen: undefined,
             },
-            blockThen: {
-              type: "loop",
-              source: {
-                type: "section",
-                name: "beat",
-                reversed: true,
+            blockThen: [
+              {
+                type: "loop",
+                source: {
+                  type: "section",
+                  name: "beat",
+                  reversed: true,
+                },
               },
-            },
+              {
+                type: "loop",
+                source: {
+                  type: "inline_track",
+                  instrument: "kit",
+                  track: "k",
+                  reversed: false,
+                },
+              },
+            ],
           },
         ],
       },

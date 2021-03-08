@@ -41,12 +41,13 @@ export interface ArrangementSection {
 
 export type Command = PlayCommand | LoopCommand;
 
-interface PlayCommand {
+export interface PlayCommand {
   type: "play";
   times: number;
   source: Source;
   inlineThen?: Command;
-  blockThen?: Command;
+  blockThen?: Command[];
+  inMain: boolean;
 }
 
 interface LoopCommand {
@@ -147,8 +148,8 @@ const semantics = grammar.createSemantics().addOperation("ast", {
   InlineThen(_then, command) {
     return command.ast();
   },
-  BlockThen(_then, _1, command) {
-    return command.ast();
+  BlockThen(_then, _1, commandList) {
+    return commandList.ast().flat();
   },
   Loop(_loop, fragment) {
     return {
@@ -174,17 +175,17 @@ const semantics = grammar.createSemantics().addOperation("ast", {
   },
 });
 
-function parse(code: string): Ast | null {
+function parse(code: string): { ast: Ast | null; error: string | null } {
   let match;
   try {
     match = grammar.match(code);
   } catch (e) {
-    return null;
+    return { ast: null, error: e.message };
   }
   if (match.succeeded()) {
-    return semantics(match).ast();
+    return { ast: semantics(match).ast(), error: null };
   } else {
-    return null;
+    return { ast: null, error: match.message || "" };
   }
 }
 export default parse;

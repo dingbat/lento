@@ -20,20 +20,10 @@ const Preview = styled.div`
   padding: 2rem;
   background-color: rgb(30,30,30);
 `;
-const DEFAULT_TEXT = false ? raw("../default.txt") : `
-set bpm to 200
-
-track/synth
-|cdef|
-
-i/
-play track
-play kick|k...|
-
-main/
-loop kick|h|
-play i
+const SyntaxError = styled.div`
+  color: red;
 `;
+const DEFAULT_TEXT = `` || raw("../default.txt");
 const DEFAULT_COMPOSITION = compile(DEFAULT_TEXT);
 
 // (() => {})();
@@ -44,18 +34,6 @@ function App() {
   const [composition, setComposition] = useState<Composition | Error>(
     DEFAULT_COMPOSITION
   );
-
-  const handleChange = (code: string) => {
-    if (playing) {
-      togglePlay();
-    }
-    const composition = compile(code + "\n");
-    setComposition(composition);
-  };
-  const editor = useCodeMirror<HTMLDivElement>({
-    doc: DEFAULT_TEXT,
-    callback: handleChange,
-  });
 
   const togglePlay = async () => {
     if (playing) {
@@ -73,12 +51,25 @@ function App() {
       }
     }
   };
+
+  const handleChange = (code: string) => {
+    if (playing) {
+      togglePlay();
+    }
+    const composition = compile(code + "\n");
+    setComposition(composition);
+  };
+  const editor = useCodeMirror<HTMLDivElement>({
+    doc: DEFAULT_TEXT,
+    callback: handleChange,
+  });
+
   return (
     <Main>
       <Editor ref={editor} />
       <Preview>
         <button onClick={togglePlay}>{playing ? "stop" : "play"}</button>
-        {composition.error && composition.message}
+        <SyntaxError><pre>{composition.error && composition.message}</pre></SyntaxError>
       </Preview>
     </Main>
   );

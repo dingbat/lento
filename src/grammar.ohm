@@ -1,8 +1,8 @@
 Lento {
   Composition = newline* Statement*
-  Statement = (set | Section) (newline+ | end)
+  Statement = (set | Section) newline+
 
-  set = "set" spaces settings spaces "to" spaces alnum+
+  set = "set" space+ settings space+ "to" space+ alnum+
 
   Section = Instrument | Arrangement
 
@@ -20,7 +20,7 @@ Lento {
   InlineThen = "then" CommandNoBlockThen
   CommandNoBlockThen = Loop | PlayNoBlockThen
   PlayNoBlockThen = "play" Fragment (digit+ "times")? InlineThen?
-  BlockThen = "then" newline+ Command
+  BlockThen = "then" newline+ CommandList
 
   Fragment = "reversed"? ident track?
 

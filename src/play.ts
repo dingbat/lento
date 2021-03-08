@@ -110,10 +110,28 @@ class Player {
     onComplete: () => void,
     allowInfiniteLoops = false
   ): Playback[] {
+    return this.playCommands(
+      section.commands,
+      loop,
+      reversed,
+      onComplete,
+      allowInfiniteLoops
+    );
+  }
+
+  playCommands(
+    commands: Command[],
+    loop: boolean | number,
+    reversed: boolean,
+    onComplete: () => void,
+    allowInfiniteLoops = false
+  ): Playback[] {
     const commandFinished = () => {
-      const allPlaybackComplete = playbacks.every(p => (!allowInfiniteLoops && p.loop === true) || p.complete);
+      const allPlaybackComplete = playbacks.every(
+        (p) => (!allowInfiniteLoops && p.loop === true) || p.complete
+      );
       if (allPlaybackComplete) {
-        if (typeof(loop) === "number") {
+        if (typeof loop === "number") {
           loop -= 1;
         }
         if (loop === true) {
@@ -126,7 +144,7 @@ class Player {
         }
       }
     };
-    const playbacks = section.commands.flatMap((command) => {
+    const playbacks = commands.flatMap((command) => {
       return this.playCommand(command, reversed, commandFinished);
     });
     return playbacks;
@@ -143,9 +161,16 @@ class Player {
     const handleComplete = () => {
       if (command.type === "play") {
         const completeBlock = () => {
-          onComplete();
           if (command.blockThen) {
-            this.playCommand(command.blockThen, reversed, () => {});
+            this.playCommands(
+              command.blockThen,
+              false,
+              reversed,
+              onComplete,
+              command.inMain
+            );
+          } else {
+            onComplete();
           }
         };
         if (command.inlineThen) {
