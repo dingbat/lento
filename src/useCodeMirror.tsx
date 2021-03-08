@@ -1,5 +1,7 @@
 import { basicSetup, EditorState, EditorView } from "@codemirror/basic-setup";
 import { Transaction, Text } from "@codemirror/state";
+import { keymap } from "@codemirror/view";
+import { commentKeymap } from "@codemirror/comment";
 import { MutableRefObject, useEffect, useReducer, useRef } from "react";
 
 import highlightParser from "./highlightParser";
@@ -27,7 +29,11 @@ export default function useCodeMirror<T extends Element>(
     () =>
       EditorState.create({
         doc: options.doc,
-        extensions: [basicSetup, highlightParser],
+        extensions: [
+          basicSetup,
+          highlightParser,
+          keymap.of(commentKeymap),
+        ],
       })
   );
 

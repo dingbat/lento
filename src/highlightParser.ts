@@ -1,6 +1,11 @@
 import { StreamLanguage } from "@codemirror/stream-parser";
 
 const language = StreamLanguage.define({
+  languageData: {
+    commentTokens: {
+      line: "#",
+    },
+  },
   token: function (stream) {
     let tag = "";
     const previousString = stream.string.substring(0, stream.pos);

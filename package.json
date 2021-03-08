@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "@codemirror/basic-setup": "^0.18.0",
+    "@codemirror/comment": "^0.18.0",
     "@codemirror/state": "^0.18.0",
     "@codemirror/stream-parser": "^0.18.0",
+    "@codemirror/view": "^0.18.1",
     "@react-hook/throttle": "^2.2.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
