@@ -14,6 +14,16 @@ export interface Error {
   message: string;
 }
 
+function checkInstrument(instrument: string): Error | null {
+  if (["synth", "kit"].includes(instrument)) {
+    return null;
+  }
+  return {
+    error: true,
+    message: "only instruments are `synth` and `kit`",
+  };
+}
+
 function checkDefinedSections(
   sections: SectionMap,
   commands: Command[],
@@ -21,7 +31,7 @@ function checkDefinedSections(
 ): Error | null {
   return commands.reduce<Error | null>((error, command) => {
     if (command.source.type === "inline_track") {
-      return error;
+      return error || checkInstrument(command.source.instrument);
     } else {
       const section = sections[command.source.name];
       if (!section) {
@@ -32,6 +42,8 @@ function checkDefinedSections(
       } else {
         if (section.type === "arrangement") {
           error = checkDefinedSections(sections, section.commands, error);
+        } else {
+          error = error || checkInstrument(section.instrument);
         }
         if (command.type === "play") {
           if (command.inlineThen) {

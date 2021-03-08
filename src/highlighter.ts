@@ -19,7 +19,7 @@ const language = StreamLanguage.define({
     } else if (boundary && stream.match(/^\d+ times/)) {
       stream.backUp(1);
       tag = "bool";
-    } else if (boundary && stream.match(/reversed( |%)/)) {
+    } else if (boundary && stream.match(/reversed( |$)/)) {
       stream.backUp(1);
       tag = "bool";
     } else if (previousString.match(/ *set +$/)) {

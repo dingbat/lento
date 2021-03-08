@@ -28,7 +28,7 @@
   },
   "homepage": "https://dingbat.github.io/lento",
   "scripts": {
-    "predeploy": "yarn build",
+    "predeploy": "rm -rf build && yarn build",
     "deploy": "gh-pages -d build",
     "start": "FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
